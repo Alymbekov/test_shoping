@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import RegistrationAPISerializers, LoginSerializer
 from .utils import send_activation_mail
@@ -32,7 +32,7 @@ class ActivationView(APIView):
         return Response(data={'message': 'Аккаунт успешно активирован'}, status=status.HTTP_200_OK)
 
 
-class LoginView(ObtainAuthToken):
+class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
 

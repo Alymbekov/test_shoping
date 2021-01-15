@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from .models import CustomUser
 
 
@@ -24,13 +26,13 @@ class RegistrationAPISerializers(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField()
-    password = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
         email = attrs.get('email')
-        password = attrs.get('password')
+        password = attrs.pop('password')
 
         if email and password:
             user = authenticate(request=self.context.get('request'),
@@ -45,6 +47,9 @@ class LoginSerializer(serializers.Serializer):
         else:
             msg = _('Email и пароль обязательны для ввода.')
             raise serializers.ValidationError(msg, code='authorization')
-
-        attrs['user'] = user
+        if user and user.is_active:
+            refresh =  self.get_token(user)
+            attrs['refresh'] = str(refresh)
+            attrs['access'] = str(refresh.access_token)
+            attrs['user'] = {'user_id':user.id, 'user_email': user.email}
         return attrs
