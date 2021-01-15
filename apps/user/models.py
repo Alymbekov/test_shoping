@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import (
     AbstractUser, BaseUserManager
     )
+from django.utils.crypto import get_random_string
 
 
 class UserManager(BaseUserManager):
@@ -16,13 +17,11 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_active', False)
         return self._create_user(email, password, **extra_fields)
-    
 
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
@@ -52,7 +51,7 @@ class CustomUser(AbstractUser):
     
     def activate_with_code(self, code):
         if str(self.activation_code) != str(code):
-            raise Exeption('Code does not match')
+            raise Exception('Code does not match')
         self.is_active = True
         self.activation_code = ''
         self.save(update_fields=['is_active', 'activation_code'])
@@ -61,6 +60,11 @@ class CustomUser(AbstractUser):
         import uuid
         code = str(uuid.uuid4())
         self.activation_code = code
+        self.save(update_fields=['activation_code'])
+
+        # get_random_string(length=6)
+
+
 
 # Post.objects.all()
 # Post.verified.all()
