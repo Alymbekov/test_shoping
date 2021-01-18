@@ -9,3 +9,9 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.children.exists():
+            representation['children'] = CategorySerializer(
+                instance.children.all(), many=True).data
+        return representation
