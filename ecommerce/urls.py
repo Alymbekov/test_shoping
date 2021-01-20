@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('apps.main_app.urls')),
     path('products/', include('apps.product.urls')),
     path('api/v1/accounts/', include('apps.user.urls')),
+    path('api/', include('apps.order.urls')),
 ]
 
 if settings.DEBUG is True:
